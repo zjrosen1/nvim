@@ -3,79 +3,6 @@
 " | Email: zjrosen@gmail.com |
 " ┕--------------------------┙
 
-" [ Vundle Setup ]{{{1
-" set nocompatible
-" filetype off
-
-" set rtp+=~/.vim/bundle/Vundle.vim
-" call vundle#begin()
-
-" let Vundle manage Vundle, required
-" Plugin 'gmarik/Vundle.vim'
-
-" Github
-" Plugin 'tpope/vim-fugitive'
-" Plugin 'tpope/vim-endwise'
-" Plugin 'tpope/vim-surround'
-" Plugin 'tpope/vim-unimpaired'
-" Plugin 'tpope/vim-repeat'
-" Plugin 'scrooloose/nerdcommenter'
-" Plugin 'scrooloose/nerdtree'
-" Plugin 'scrooloose/syntastic'
-" Plugin 'sjl/gundo.vim'
-" Plugin 'mattn/webapi-vim'
-" Plugin 'mattn/gist-vim'
-" 
-" Plugin 'coderifous/textobj-word-column.vim'
-" 
-" Plugin 'vim-airline/vim-airline'
-" Plugin 'vim-airline/vim-airline-themes'
-" Plugin 'airblade/vim-gitgutter'
-" Plugin 'osyo-manga/vim-over'
-" Plugin 'junegunn/vim-easy-align'
-" " Plugin 'christoomey/vim-tmux-navigator'
-" Plugin 'tmux-plugins/vim-tmux'
-" Plugin 'arecarn/crunch.vim'
-" 
-" Plugin 'terryma/vim-multiple-cursors'
-" Plugin 'tommcdo/vim-exchange'
-" Plugin 'kchmck/vim-coffee-script'
-" Plugin 'kana/vim-smartinput'
-" Plugin 'ervandew/supertab'
-" Plugin 'Lokaltog/vim-easymotion'
-" Plugin 'mattn/emmet-vim'
-" Plugin 'kien/rainbow_parentheses.vim'
-" Plugin 'AndrewRadev/splitjoin.vim'
-" Plugin 'gabesoft/vim-ags'
-" Plugin 'flazz/vim-colorschemes'
-" 
-" Plugin 'marcweber/vim-addon-mw-utils'
-" Plugin 'tomtom/tlib_vim'
-" Plugin 'garbas/vim-snipmate'
-" Plugin 'honza/vim-snippets'
-" 
-" " Filetype Specific
-" Plugin 'heavenshell/vim-jsdoc'
-" Plugin 'evidens/vim-twig'
-" "Plugin 'pangloss/vim-javascript'
-" Plugin 'othree/yajs.vim'
-" Plugin 'raichoo/purescript-vim'
-" Plugin 'leafgarland/typescript-vim'
-" Plugin 'elixir-lang/vim-elixir'
-" Plugin 'mxw/vim-jsx'
-" Plugin 'joukevandermaas/vim-ember-hbs'
-" Plugin 'mtscout6/syntastic-local-eslint.vim'
-" Plugin 'isRuslan/vim-es6'
-" 
-" " vim-scripts
-" Plugin 'Tabular'
-" Plugin 'ctrlp.vim'
-" Plugin 'matchit.zip'
-" Plugin 'ack.vim'
-" 
-" call vundle#end()
-" 
-" filetype plugin indent on
 " [ Prefrences ] {{{1
 let mapleader = " "                    " Set global mapleader to space
 set noswapfile
@@ -98,7 +25,7 @@ nnoremap j gj
 nnoremap k gk
 " Appearance {{{2
 " set number                                   " Always show line numbers
-set numberwidth=3                              " Changed the width of line number columns
+set numberwidth=3                              " Change the width of line number columns
 set listchars=space:\|\,tab:\|\ ,trail:·,eol:¬ " Use new symbols for tabstops and EOLs
 set ts=2 sts=2 sw=2 expandtab                  " Default tab stops
 set backspace=indent,eol,start
@@ -116,12 +43,12 @@ set laststatus=2                      " Always show the statusline
 set t_Co=256                          " Explicitly tell Vim that the terminal supports 256 colors
 " Colors and Theme {{{2
 set background=dark
-colorscheme badwolf
+"colorscheme badwolf
 
 " TODO: Get this working better
-"colorscheme gruvbox
-"let g:gruvbox_contrast_dark = 'hard'
-"let g:gruvbox_vert_split = 'bg2'
+colorscheme gruvbox
+let g:gruvbox_contrast_dark = 'hard'
+let g:gruvbox_vert_split = 'bg2'
 
 "highlight Pmenu ctermfg=255 ctermbg=120
 "highlight PmenuSel ctermfg=16 ctermbg=39
@@ -142,6 +69,8 @@ if has("autocmd")
         \ endif
 endif
 
+" Commit Messages should always start on first line
+autocmd FileType gitcommit call setpos('.', [0, 1, 1, 0])
 " Set filetype {{{2
 " Currently for hbs using the hbs-ember-plugin
 "if has("autocmd")
@@ -150,6 +79,10 @@ endif
 "endif
 " Save on losing focus {{{2
 au FocusLost * :wa
+
+" Lint on save {{{2
+autocmd! BufWritePost * Neomake
+" let g:neomake_open_list=1
 " Resize splits when window is resized {{{2
 au VimResized * exe "normal! \<c-w>="
 " Clean up nlue: 'United States', label: 'United States' },
@@ -246,11 +179,10 @@ map <C-k> <C-w>k
 map <C-l> <C-w>l
 " Window Resizing {{{2
 " Because you guys are a bunch of vaginas {()}
-" No Arrow keys for you
-nnoremap <Left> :vertical resize +1<CR>
-nnoremap <Right> :vertical resize -1<CR>
-nnoremap <Up> :resize +1<CR>
-nnoremap <Down> :resize -1<CR>
+nnoremap <left> :bprev<CR>
+nnoremap <right> :bnext<CR>
+nnoremap <up> :tabnext<CR>
+nnoremap <down> :tabprev<CR>
 " Insert Movement {{{2
 imap <C-e> <C-o>$
 imap <C-a> <C-o>0
@@ -314,10 +246,12 @@ nmap <silent> <leader>h :set hlsearch!<CR>
 " Toggle Spell Checking -- s {{{2
 nmap <silent> <leader>s :set spell!<CR>
 
-" Toggle set list -- l {{{2
-nmap <Leader>l :set list!<CR>
+" Toggle loclist -- l {{{2
+let g:lt_location_list_toggle_map = '<leader>l'
+" Toggle quickfix -- q {{{2
+let g:lt_quickfix_list_toggle_map = '<leader>q'
 " Ag -- a {{{2
-nmap <leader>a :Ags<SPACE>
+nmap <leader>a :Ag<SPACE>
 " Surround selection with -- ` ' '' {{{2
 " TODO: Used to use backticks to turn coffeescript to js
 " but then es2015, probably can remove it
@@ -467,6 +401,39 @@ vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 " [ Plugins ] {{{1
 " Deoplete {{{2
 let g:deoplete#enable_at_startup = 1
+let g:deoplete#enable_smart_case = 1 
+set completeopt-=preview
+
+let g:tern#command = ["tern"]
+let g:tern#arguments = ["--persistent"]
+
+let g:deoplete#omni#functions = {}
+let g:deoplete#omni#functions.javascript = [
+  \ 'tern#Complete',
+\]
+" Neosnippet {{{2
+let g:neosnippet#snippets_directory='~/.config/nvim/bundle/neosnippet-snippets/neosnippets'
+
+function! s:tab_complete()
+  " is completion menu open? cycle to next item
+  if pumvisible()
+    return "\<c-n>"
+  endif
+
+  " is there a snippet that can be expanded?
+  " is there a placholder inside the snippet that can be jumped to?
+  if neosnippet#expandable_or_jumpable() 
+    return "\<Plug>(neosnippet_expand_or_jump)"
+  endif
+
+  " if none of these match just use regular tab
+  return "\<tab>"
+endfunction
+
+imap <silent><expr><TAB> <SID>tab_complete()
+imap <C-j>     <Plug>(neosnippet_expand_or_jump)
+smap <C-j>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-j>     <Plug>(neosnippet_expand_target)
 " Easy-motion {{{2
 let g:EasyMotion_leader_key = ','
 hi EasyMotionTarget ctermbg=none ctermfg=DarkRed
@@ -493,10 +460,18 @@ let g:ctrlp_jump_to_buffer = 2 " Jump to tab AND buffer if already open
 let g:ctrlp_split_window = 1 " <CR> = 1 - Tab, 2 - Horizontal, 3 - Vertical
 " MultipleCursors {{{2
 let g:multi_cursor_next_key='<C-n>'
-let g:multi_cursor_quit_key='<C-c>'
+let g:multi_cursor_quit_key='<C-j>'
 " Mustache {{{2
 let g:mustache_abbreviations = 1
+" NerdCommenter {{{2
+let g:NERDSpaceDelims = 1
+let g:NERDDefaultAlign = 'left'
+
 " NerdTree {{{2
+let NERDTreeShowHidden=1
+let g:NERDTreeWinSize=45
+let g:NERDTreeAutoDeleteBuffer=1
+
 autocmd vimenter * if !argc() | NERDTree | endif " Load NERDTree by default for directory
 
 map <C-n><C-t> :NERDTreeToggle<CR>
@@ -579,6 +554,51 @@ nmap <silent> <leader>js <Plug>(jsdoc)
 let g:gitgutter_enabled = 0
 let g:gitgutter_highlight_lines = 1
 nmap <leader>gt :GitGutterToggle<cr>
+" Unite {{{2
+"nmap <leader>b :Unite -start-insert buffer<cr>
+"nmap <leader>fd :Unite -start-insert file<cr>
+
+" Fuzzy match by default
+"call unite#filters#matcher_default#use(['matcher_fuzzy'])
+"call unite#filters#sorter_default#use(['sorter_rank'])
+
+" Fuzzy matching for plugins not using matcher_default as filter
+"call unite#custom#source('outline,line,grep,session', 'matchers', ['matcher_fuzzy'])
+
+"call unite#custom#source('file_rec,file_rec/async,file_mru,file,grep',
+            "\ 'ignore_pattern', join([
+            "\ '\.swp', '\.swo', '\~$',
+            "\ '\.git/', '\.svn/', '\.hg/',
+            "\ '^tags$', '\.taghl$',
+            "\ '\.ropeproject/', '\.pbxproj$', '\.xcodeproj', '\.vcproj', 
+            "\ 'node_modules/', 'bower_components/', 'log/', 'tmp/', 'obj/',
+            "\ '/vendor/gems/', '/vendor/cache/', '\.bundle/', '\.sass-cache/',
+            "\ '/tmp/cache/assets/.*/sprockets/', '/tmp/cache/assets/.*/sass/',
+            "\ 'thirdparty/', 'Debug/', 'Release/', 'build/', 'dist/',
+            "\ 'web/static/components/', 'web/static/external/', 'web/static/images/',
+            "\ '\.pyc$', 'pb2\.py$', '\.class$', '\.jar$', '\.min\.js$',
+            "\ '\.jpg$', '\.jpeg$', '\.bmp$', '\.png$', '\.gif$',
+            "\ '\.o$', '\.out$', '\.obj$', '\.rbc$', '\.rbo$', '\.gem$',
+            "\ '\.zip$', '\.tar\.gz$', '\.tar\.bz2$', '\.rar$', '\.tar\.xz$'
+            "\ ], '\|'))
+
+"let g:unite_source_history_yank_enable = 1
+
+" Prettier prompt
+"call unite#custom#profile('default', 'context', {
+    "\   'prompt': '» ',
+    "\   'start_insert': 1,
+    "\   'update_time': 200,
+    "\   'cursor_line_highlight': 'UniteSelectedLine',
+    "\   'direction': 'botright',
+    "\   'prompt_direction': 'top',
+    "\ })
+
+"if executable('ag')
+  "let g:unite_source_grep_command = 'ag'
+  "let g:unite_source_grep_default_opts = '--nocolor --nogroup --hidden --ignore-case --ignore tags'
+  "let g:unite_source_grep_recursive_opt = ''
+"endif 
 " Gist {{{2
 nmap <leader>gl :Gist -l<cr>
 let g:gist_show_privates = 1

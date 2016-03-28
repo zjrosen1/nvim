@@ -1,7 +1,3 @@
 bundle
-temp
-.dein/
 .init.vim-rplugin~
-merged
 repos/
-rollbacks/
