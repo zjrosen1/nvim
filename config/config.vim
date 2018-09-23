@@ -252,6 +252,8 @@ let g:lt_location_list_toggle_map = '<leader>l'
 let g:lt_quickfix_list_toggle_map = '<leader>q'
 " Ag -- a {{{2
 nmap <leader>a :Ag<SPACE>
+" Format JSON -- f {{{2
+nmap <leader>f :%!python -m json.tool<CR>
 " Surround selection with -- ` ' '' {{{2
 " TODO: Used to use backticks to turn coffeescript to js
 " but then es2015, probably can remove it
