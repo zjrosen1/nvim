@@ -43,9 +43,7 @@ set laststatus=2                      " Always show the statusline
 set t_Co=256                          " Explicitly tell Vim that the terminal supports 256 colors
 " Colors and Theme {{{2
 set background=dark
-"colorscheme badwolf
 
-" TODO: Get this working better
 colorscheme gruvbox
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_vert_split = 'bg2'
@@ -72,20 +70,21 @@ endif
 " Commit Messages should always start on first line
 autocmd FileType gitcommit call setpos('.', [0, 1, 1, 0])
 " Set filetype {{{2
-" Currently for hbs using the hbs-ember-plugin
-"if has("autocmd")
-"au BufNewFile,BufRead *.hbs set ft=html
-"au BufNewFile,BufRead *.eex set ft=html
-"endif
 " Save on losing focus {{{2
 au FocusLost * :wa
-
 " Lint on save {{{2
-autocmd! BufWritePost * Neomake
+" autocmd! BufWritePost * Neomake
 " let g:neomake_open_list=1
+" let g:neomake_javascript_enabled_makers = ['eslint']
+
+let g:ale_linters = { 'javascript': ['eslint'] }
+let g:ale_fixers = {
+\   '*': ['remove_trailing_lines', 'trim_whitespace'],
+\   'javascript': ['eslint'],
+\}
+" let g:ale_fix_on_save = 1
 " Resize splits when window is resized {{{2
 au VimResized * exe "normal! \<c-w>="
-" Clean up nlue: 'United States', label: 'United States' },
 " Nasty wysiwig html {{{2
 " Install pandoc first
 " https://code.google.com/p/pandoc/downloads/list
@@ -107,10 +106,8 @@ if has("autocmd")
 endif
 " [ Mappings ] {{{1
 " Stuff {{{2
-cmap w!! %!sudo tee> /dev/null %    " sudo that bitch
+cmap w!! %!sudo tee> /dev/null %
 command! W w												" Remap :W to :w because shit happens
-
-" nmap _j vipJV"+yu									" For a SO question i answered, joins lines and copies to system clipboard
 
 " like gv but for pasted text
 " nnoremap <leader>v V`]
@@ -124,7 +121,6 @@ command! W w												" Remap :W to :w because shit happens
 nnoremap Y y$												" Yank to end of line with Y
 nnoremap D d$												" Delete to end of line with D
 " Visual Selection {{{2
-
 " Fix linewise visual selection of various text objects
 nnoremap Vat vatV
 nnoremap Vab vabV
@@ -135,7 +131,6 @@ nnoremap * *<c-o>
 
 " Visually select the text that was last edited/pasted
 nmap gV `[v`]
-
 " Searching {{{2
 " Control space to search mode
 nnoremap <Nul> /
@@ -178,7 +173,7 @@ map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-l> <C-w>l
 " Window Resizing {{{2
-" Because you guys are a bunch of vaginas {()}
+" Dont let the people use the arrow keys in vim xD
 nnoremap <left> :bprev<CR>
 nnoremap <right> :bnext<CR>
 nnoremap <up> :tabnext<CR>
@@ -226,14 +221,13 @@ function! XTermPasteBegin()
 endfunction
 
 inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
-
 " F1 gets in the way plus one help to rule them all :h {{{2
 inoremap <F1> <ESC>
 nnoremap <F1> <ESC>
 vnoremap <F1> <ESC>
 " [ Leader Mappings ] {{{1
 " Save a file -- fs {{{2
-nmap <leader>fs :w<CR>
+" nmap <leader>fs :w<CR>
 " Update vimrc -- v OR ev {{{2
 nmap <leader>v :tabedit $MYVIMRC<CR>
 nnoremap <leader>ev <C-w><C-v><C-l>:e $MYVIMRC<cr>
@@ -253,12 +247,8 @@ let g:lt_quickfix_list_toggle_map = '<leader>q'
 " Ag -- a {{{2
 nmap <leader>a :Ag<SPACE>
 " Format JSON -- f {{{2
-nmap <leader>f :%!python -m json.tool<CR>
+" nmap <leader>f :%!python -m json.tool<CR>
 " Surround selection with -- ` ' '' {{{2
-" TODO: Used to use backticks to turn coffeescript to js
-" but then es2015, probably can remove it
-" nnoremap <leader>` 0vg_S`  " surround line with `
-
 nnoremap <leader>" viwS"
 nnoremap <leader>' viwS'
 " Yank to system clipboard -- y {{{2
@@ -271,19 +261,8 @@ map <leader>tc :tabclose<cr>
 map <leader>tm :tabmove<cr>
 map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
 " Extras for now {{{2
-" Fuck The World
-nmap <leader>fw :silent execute "!say -v Daniel -r 120 fuck the world &>/dev/null &" <bar> redraw!<CR>
-nmap <leader>fp :silent execute "!killall say &>/dev/null &" <bar> redraw!<CR>
-
 " Fold an html container
 nnoremap <leader>ft Vatzf
-
-" TODO: figure this out one day
-" This might sort css
-" nnoremap <leader>S ?{<CR>jV/^\s*\}?$<CR>k:sort<CR>:noh<CR>
-" Alphabetically sort CSS properties in file with :SortCSS
-" :command! SortCSS :g#\({\n\)\@<=#.,/}/sort
-
 " [ Functions ]{{{1
 " Remove trailing white space {{{2
 function! Preserve(command)
@@ -339,80 +318,43 @@ function! SummarizeTabs()
   endtry
 endfunction
 
-" Run Tests {{{2
-function! RunTests(filename)
-  " Write the file and run tests for the given filename
-  :w
-  :silent !clear
-  if match(a:filename, '\.feature$') != -1
-    exec ":!bundle exec cucumber " . a:filename
-  elseif match(a:filename, '_test\.rb$') != -1
-    if filereadable("bin/testrb")
-      exec ":!bin/testrb " . a:filename
-    else
-      exec ":!ruby -Itest " . a:filename
-    end
-  else
-    if filereadable("Gemfile")
-      exec ":!bundle exec rspec --color " . a:filename
-    else
-      exec ":!rspec --color " . a:filename
-    end
-  end
-endfunction
-
-function! SetTestFile()
-  " set the spec file that tests will be run for.
-  let t:grb_test_file=@%
-endfunction
-
-function! RunTestFile(...)
-  if a:0
-    let command_suffix = a:1
-  else
-    let command_suffix = ""
-  endif
-
-  " run the tests for the previously-marked file.
-  let in_test_file = match(expand("%"), '\(.feature\|_spec.rb\|_test.rb\)$') != -1
-  if in_test_file
-    call SetTestFile()
-  elseif !exists("t:grb_test_file")
-    return
-  end
-  call RunTests(t:grb_test_file . command_suffix)
-endfunction
-
-function! RunNearestTest()
-  let spec_line_number = line('.')
-  call RunTestFile(":" . spec_line_number . " -b")
-endfunction
-
-" run test runner
-" map <leader>t :call RunTestFile()<cr>
-" map <leader>T :call RunNearestTest()<cr>
 " Visual Mode */# from Scrooloose {{{2
-function! s:VSetSearch()
-  let temp = @@
-  norm! gvy
-  let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
-  let @@ = temp
-endfunction
+" function! s:VSetSearch()
+"   let temp = @@
+"   norm! gvy
+"   let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
+"   let @@ = temp
+" endfunction
 
-vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
+" vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 " [ Plugins ] {{{1
+" FZF {{{2
+let $FZF_DEFAULT_OPTS='--reverse'
+let g:fzf_layout = { 'window': {'width': 0.85, 'height': 0.85} }
+
+command! -bang -nargs=* GGrep
+  \ call fzf#vim#grep(
+  \   'git grep --line-number -- '.shellescape(<q-args>), 0,
+  \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
+
+nnoremap <leader>fs :GFiles<CR>
+nnoremap <leader>fp :GGrep<CR>
 " Deoplete {{{2
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#enable_smart_case = 1 
-set completeopt-=preview
+" let g:deoplete#enable_at_startup = 1
+" let g:deoplete#enable_smart_case = 1
+" set completeopt-=preview
 
-let g:tern#command = ["tern"]
-let g:tern#arguments = ["--persistent"]
+" let g:tern#command = ["tern"]
+" let g:tern#arguments = ["--persistent"]
 
-let g:deoplete#omni#functions = {}
-let g:deoplete#omni#functions.javascript = [
-  \ 'tern#Complete',
-\]
+" let g:deoplete#omni#functions = {}
+" let g:deoplete#omni#functions.javascript = [
+"   \ 'tern#Complete',
+" \]
+
+" call deoplete#custom#option('sources', {
+" \ '_': ['ale'],
+" \})
 " Neosnippet {{{2
 let g:neosnippet#snippets_directory='~/.config/nvim/bundle/neosnippet-snippets/neosnippets'
 
@@ -424,7 +366,7 @@ function! s:tab_complete()
 
   " is there a snippet that can be expanded?
   " is there a placholder inside the snippet that can be jumped to?
-  if neosnippet#expandable_or_jumpable() 
+  if neosnippet#expandable_or_jumpable()
     return "\<Plug>(neosnippet_expand_or_jump)"
   endif
 
@@ -449,9 +391,6 @@ let g:user_emmet_leader_key = '<c-e>'
 nmap <leader>ga :Git add -A<CR>
 nmap <leader>gc :Gcommit -a<CR>
 nmap <leader>gp :Git push<CR>
-" CoffeeScript {{{2
-nnoremap <leader>cw :CoffeeWatch<cr>
-nnoremap <leader>cr :CoffeeRun<cr>
 " CtrlP {{{2
 let g:ctrlp_custom_ignore = '\v[\/](transpiled)|dist|tmp|bower_components|node_modules|(\.(swp|git|bak|pyc|DS_Store))$'
 let g:ctrlp_match_window_bottom = 0 " Show at top of window
@@ -478,55 +417,7 @@ autocmd vimenter * if !argc() | NERDTree | endif " Load NERDTree by default for 
 
 map <C-n><C-t> :NERDTreeToggle<CR>
 map <leader>nt :NERDTreeToggle<CR>
-" Airline {{{2
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#show_buffers = 0
-"let g:airline_theme = 'powerlineish'
-" Rainbow Parens {{{2
-" nmap <leader>r :RainbowParenthesesToggle<CR>
-" au Syntax * RainbowParenthesesLoadRound
-" au Syntax * RainbowParenthesesLoadSquare
-" au Syntax * RainbowParenthesesLoadBraces
-" let g:rbpt_max = 16
-" let g:rbpt_loadcmd_toggle = 0
-" Syntastic {{{2
-function! JavascriptLinter(curpath)
-  let parent=1
-  let local_path=a:curpath
-  let local_jscs=local_path . '.jscsrc'
-  let local_eslint=local_path . '.eslintrc'
-
-  while parent <= 255
-    let parent = parent + 1
-    if filereadable(local_jscs)
-      return ['jscs']
-    endif
-    if filereadable(local_eslint)
-      return ['eslint']
-    endif
-    let local_path = local_path . "../"
-    let local_jscs = local_path . '.jscsrc'
-    let local_eslint = local_path . '.eslintrc'
-  endwhile
-
-  unlet parent local_jscs
-
-  return ['jshint']
-endfunction
-let g:syntastic_javascript_checkers=JavascriptLinter(getcwd() . "/")
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_loc_list_height = 5
-let g:syntastic_check_on_open = 1
-nmap <leader>st :SyntasticToggleMode<cr>
-let g:syntastic_mode_map={ 'mode': 'active',
-      \ 'active_filetypes': [],
-      \ 'passive_filetypes': ['html', 'handlebars'] }
-
-"let g:syntastic_typescript_checkers = ['tsc']
-let g:syntastic_typescript_checkers = ['tslint', 'tsc']
-let g:syntastic_typescript_tsc_args = "-t ES5 --module commonjs --experimentalDecorators"
-" Toggle errors
+map <leader>nf :NERDTreeFind<CR>
 " Tabularize {{{2
 vmap <Enter> <Plug>(EasyAlign)
 if exists(":Tabularize")
@@ -555,7 +446,7 @@ nmap <silent> <leader>js <Plug>(jsdoc)
 " Git Gutter {{{2
 let g:gitgutter_enabled = 0
 let g:gitgutter_highlight_lines = 1
-nmap <leader>gt :GitGutterToggle<cr>
+" nmap <leader>gt :GitGutterToggle<cr>
 " Unite {{{2
 "nmap <leader>b :Unite -start-insert buffer<cr>
 "nmap <leader>fd :Unite -start-insert file<cr>
@@ -572,7 +463,7 @@ nmap <leader>gt :GitGutterToggle<cr>
             "\ '\.swp', '\.swo', '\~$',
             "\ '\.git/', '\.svn/', '\.hg/',
             "\ '^tags$', '\.taghl$',
-            "\ '\.ropeproject/', '\.pbxproj$', '\.xcodeproj', '\.vcproj', 
+            "\ '\.ropeproject/', '\.pbxproj$', '\.xcodeproj', '\.vcproj',
             "\ 'node_modules/', 'bower_components/', 'log/', 'tmp/', 'obj/',
             "\ '/vendor/gems/', '/vendor/cache/', '\.bundle/', '\.sass-cache/',
             "\ '/tmp/cache/assets/.*/sprockets/', '/tmp/cache/assets/.*/sass/',
@@ -600,12 +491,173 @@ nmap <leader>gt :GitGutterToggle<cr>
   "let g:unite_source_grep_command = 'ag'
   "let g:unite_source_grep_default_opts = '--nocolor --nogroup --hidden --ignore-case --ignore tags'
   "let g:unite_source_grep_recursive_opt = ''
-"endif 
+"endif
 " Gist {{{2
 nmap <leader>gl :Gist -l<cr>
 let g:gist_show_privates = 1
 let g:gist_list_vsplit = 1
 let g:gist_detect_filetype = 1
+" vim-go {{{2
+let g:go_def_mode='gopls'
+let g:go_info_mode='gopls'
+let g:go_metalinter_command = 'gopls'
+let g:go_fmt_command = 'goimports'
+let g:go_gopls_staticcheck = 1
+let g:go_metalinter_autosave = 1
+
+let g:go_def_mapping_enabled = 0
+let g:go_auto_type_info = 1
+let g:go_debug_windows = {
+      \ 'vars':       'rightbelow 60vnew',
+      \ 'stack':      'rightbelow 10new',
+\ }
+map <leader>gi :GoImports<CR>
+map <leader>gt :GoTest<CR>
+map <leader>gr :GoRun<CR>
+map <leader>gd :GoDebugStart<CR>
+map <leader>gc :GoDebugContinue<CR>
+map <leader>gb :GoDebugBreakpoint<CR>
+" Coc {{{2
+" Don't pass messages to |ins-completion-menu|.
+set shortmess+=c
+
+" Always show the signcolumn, otherwise it would shift the text each time
+" diagnostics appear/become resolved.
+if has("patch-8.1.1564")
+  " Recently vim can merge signcolumn and number column into one
+  set signcolumn=number
+else
+  set signcolumn=yes
+endif
+
+" Use tab for trigger completion with characters ahead and navigate.
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion.
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
+" position. Coc only does snippet and additional edit on confirm.
+" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
+" if exists('*complete_info')
+"   inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+" else
+"   inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" endif
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
+
+" Formatting selected code.
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder.
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+" Applying codeAction to the selected region.
+" Example: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+" Remap keys for applying codeAction to the current buffer.
+nmap <leader>ac  <Plug>(coc-codeaction)
+" Apply AutoFix to problem on the current line.
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+" Map function and class text objects
+" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+
+" Use CTRL-S for selections ranges.
+" Requires 'textDocument/selectionRange' support of LS, ex: coc-tsserver
+nmap <silent> <C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s> <Plug>(coc-range-select)
+
+" Add `:Format` command to format current buffer.
+command! -nargs=0 Format :call CocAction('format')
+
+" Add `:Fold` command to fold current buffer.
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+" Add `:OR` command for organize imports of the current buffer.
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+" Add (Neo)Vim's native statusline support.
+" NOTE: Please see `:h coc-status` for integrations with external plugins that
+" provide custom statusline: lightline.vim, vim-airline.
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+" Mappings for CoCList
+" Show all diagnostics.
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions.
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+" Show commands.
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document.
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols.
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+" Do default action for next item.
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list.
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
 " Over {{{2
 nnoremap <leader>fr :call VisualFindAndReplace()<CR>
 xnoremap <Leader>fr :call VisualFindAndReplaceWithSelection()<CR>
