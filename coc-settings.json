@@ -1,5 +1,13 @@
 {
   "eslint.autoFixOnSave": true,
+  "javascript.suggestionActions.enabled": false,
+  "coc.preferences.formatOnType": true,
+  "coc.preferences.formatOnSaveFiletypes": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
   "languageserver": {
     "golang": {
       "command": "gopls",

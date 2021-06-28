@@ -59,13 +59,10 @@ if dein#load_state('~/.cache/dein')
 
   call dein#add('vim-scripts/Tabular')
   call dein#add('vim-scripts/matchit.zip')
-  call dein#add('vim-scripts/ag.vim')
 
   call dein#add('neoclide/coc.nvim', {'merged':0, 'rev': 'release'})
   " Filetype Specific
   " Javascript
-  " call dein#add('carlitux/deoplete-ternjs', {'on_ft': 'javascript'})
-  " call dein#add('dense-analysis/ale', {'on_ft': 'javascript'})
   " call dein#add('ternjs/tern_for_vim', {'on_ft': 'javascript'})
 
   call dein#add('heavenshell/vim-jsdoc', {'on_ft': 'javascript'})
@@ -75,8 +72,6 @@ if dein#load_state('~/.cache/dein')
   call dein#add('mxw/vim-jsx', {'on_ft': 'javascript'})
   call dein#add('mtscout6/syntastic-local-eslint.vim', {'on_ft': 'javascript'})
   call dein#add('joukevandermaas/vim-ember-hbs')
-  " call dein#add('kchmck/vim-coffee-script')
-  " call dein#add('evidens/vim-twig')
 
   " Go
   call dein#add('fatih/vim-go')
