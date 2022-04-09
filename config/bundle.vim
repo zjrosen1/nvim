@@ -7,13 +7,8 @@ if dein#load_state('~/.cache/dein')
   call dein#begin(expand('~/.cache/dein'))
 
   call dein#add('~/.cache/dein/repos/github.com/Shougo/dein.vim')
-  call dein#add('Shougo/neosnippet')
-  call dein#add('Shougo/neosnippet-snippets')
   call dein#add('Shougo/denite.nvim')
 
-  call dein#add('neomake/neomake')
-
-  call dein#add('tpope/vim-surround')
   call dein#add('tpope/vim-fugitive')
   call dein#add('tpope/vim-endwise')
   call dein#add('tpope/vim-surround')
@@ -52,6 +47,7 @@ if dein#load_state('~/.cache/dein')
   call dein#add('mattn/emmet-vim', {'on_ft': 'html'})
   call dein#add('AndrewRadev/splitjoin.vim')
   call dein#add('Valloric/ListToggle')
+  call dein#add('ryanoasis/vim-devicons')
   " call dein#add('marcweber/vim-addon-mw-utils')
   " call dein#add('tomtom/tlib_vim')
 

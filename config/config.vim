@@ -67,22 +67,10 @@ if has("autocmd")
         \ endif
 endif
 
-" Commit Messages should always start on first line
+" Commit messages should always start on first line
 autocmd FileType gitcommit call setpos('.', [0, 1, 1, 0])
-" Set filetype {{{2
 " Save on losing focus {{{2
 au FocusLost * :wa
-" Lint on save {{{2
-" autocmd! BufWritePost * Neomake
-" let g:neomake_open_list=1
-" let g:neomake_javascript_enabled_makers = ['eslint']
-
-let g:ale_linters = { 'javascript': ['eslint'] }
-let g:ale_fixers = {
-\   '*': ['remove_trailing_lines', 'trim_whitespace'],
-\   'javascript': ['eslint'],
-\}
-" let g:ale_fix_on_save = 1
 " Resize splits when window is resized {{{2
 au VimResized * exe "normal! \<c-w>="
 " Nasty wysiwig html {{{2
@@ -107,13 +95,11 @@ endif
 " [ Mappings ] {{{1
 " Stuff {{{2
 cmap w!! %!sudo tee> /dev/null %
-command! W w												" Remap :W to :w because shit happens
+" Remap :W to :w because shit happens
+command! W w
 
 " like gv but for pasted text
 " nnoremap <leader>v V`]
-
-" Not sure about this one quite yet
-" nnoremap ; :
 
 " :Wrap to wrap lines command! -nargs=* Wrap set wrap linebreak nolist
 
@@ -131,6 +117,7 @@ nnoremap * *<c-o>
 
 " Visually select the text that was last edited/pasted
 nmap gV `[v`]
+
 " Searching {{{2
 " Control space to search mode
 nnoremap <Nul> /
@@ -230,16 +217,12 @@ vnoremap <F1> <ESC>
 " nmap <leader>fs :w<CR>
 " Update vimrc -- v OR ev {{{2
 nmap <leader>v :tabedit $MYVIMRC<CR>
-nnoremap <leader>ev <C-w><C-v><C-l>:e $MYVIMRC<cr>
 " Update .tmux.conf -- tc {{{2
 nmap <leader>st :tabedit ~/.tmux.conf<CR>
-" Update snipmate -- sc {{{2
-nmap <leader>sc :tabedit ~/.vim/bundle/vim-snippets/snippets<CR>
 " Toggle Highlighting -- h {{{2
 nmap <silent> <leader>h :set hlsearch!<CR>
 " Toggle Spell Checking -- s {{{2
-nmap <silent> <leader>s :set spell!<CR>
-
+nmap <silent> <leader>sp :set spell!<CR>
 " Toggle loclist -- l {{{2
 let g:lt_location_list_toggle_map = '<leader>l'
 " Toggle quickfix -- q {{{2
@@ -342,52 +325,10 @@ command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 
 nnoremap <leader>ff :GFiles<CR>
 nnoremap <leader>fs :RG<CR>
-" Deoplete {{{2
-" let g:deoplete#enable_at_startup = 1
-" let g:deoplete#enable_smart_case = 1
-" set completeopt-=preview
-
-" let g:tern#command = ["tern"]
-" let g:tern#arguments = ["--persistent"]
-
-" let g:deoplete#omni#functions = {}
-" let g:deoplete#omni#functions.javascript = [
-"   \ 'tern#Complete',
-" \]
-
-" call deoplete#custom#option('sources', {
-" \ '_': ['ale'],
-" \})
-" Neosnippet {{{2
-let g:neosnippet#snippets_directory='~/.config/nvim/bundle/neosnippet-snippets/neosnippets'
-
-function! s:tab_complete()
-  " is completion menu open? cycle to next item
-  if pumvisible()
-    return "\<c-n>"
-  endif
-
-  " is there a snippet that can be expanded?
-  " is there a placholder inside the snippet that can be jumped to?
-  if neosnippet#expandable_or_jumpable()
-    return "\<Plug>(neosnippet_expand_or_jump)"
-  endif
-
-  " if none of these match just use regular tab
-  return "\<tab>"
-endfunction
-
-imap <silent><expr><TAB> <SID>tab_complete()
-imap <C-j>     <Plug>(neosnippet_expand_or_jump)
-smap <C-j>     <Plug>(neosnippet_expand_or_jump)
-xmap <C-j>     <Plug>(neosnippet_expand_target)
 " Easy-motion {{{2
 let g:EasyMotion_leader_key = ','
 hi EasyMotionTarget ctermbg=none ctermfg=DarkRed
 " hi EasyMotionShade  ctermbg=none ctermfg=DarkGray
-" Snipmate {{{2
-" imap <C-J> <Plug>snipMateNextOrTrigger
-" smap <C-J> <Plug>snipMateNextOrTrigger
 " Emmet {{{2
 let g:user_emmet_leader_key = '<c-e>'
 "Fugitive Git {{{2
@@ -410,15 +351,12 @@ let g:mustache_abbreviations = 1
 " NerdCommenter {{{2
 let g:NERDSpaceDelims = 1
 let g:NERDDefaultAlign = 'left'
-
 " NerdTree {{{2
 let NERDTreeShowHidden=1
 let g:NERDTreeWinSize=45
 let g:NERDTreeAutoDeleteBuffer=1
 
-autocmd vimenter * if !argc() | NERDTree | endif " Load NERDTree by default for directory
-
-map <C-n><C-t> :NERDTreeToggle<CR>
+autocmd VimEnter * NERDTree
 map <leader>nt :NERDTreeToggle<CR>
 map <leader>nf :NERDTreeFind<CR>
 " Tabularize {{{2
@@ -521,12 +459,26 @@ map <leader>gd :GoDebugStart<CR>
 map <leader>gc :GoDebugContinue<CR>
 map <leader>gb :GoDebugBreakpoint<CR>
 " Coc {{{2
+" Coc Init
+let g:coc_global_extensions = [
+  \ 'coc-eslint',
+  \ 'coc-prettier',
+  \ 'coc-json',
+  \ 'coc-snippets',
+  \ 'coc-tsserver',
+  \ 'coc-vetur',
+  \ 'coc-git',
+  \ 'coc-html',
+  \ 'coc-css',
+  \ ]
+
+" Coc Settings
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
 
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved.
-if has("patch-8.1.1564")
+if has("nvim-0.5.0") || has("patch-8.1.1564")
   " Recently vim can merge signcolumn and number column into one
   set signcolumn=number
 else
@@ -554,15 +506,6 @@ else
   inoremap <silent><expr> <c-@> coc#refresh()
 endif
 
-" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
-" position. Coc only does snippet and additional edit on confirm.
-" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
-" if exists('*complete_info')
-"   inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
-" else
-"   inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-" endif
-
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
@@ -580,8 +523,10 @@ nnoremap <silent> K :call <SID>show_documentation()<CR>
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
+    call CocActionAsync('doHover')
   else
-    call CocAction('doHover')
+    execute '!' . &keywordprg . " " . expand('<cword>')
   endif
 endfunction
 
@@ -624,6 +569,16 @@ omap ic <Plug>(coc-classobj-i)
 xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
 
+" Remap <C-f> and <C-b> for scroll float windows/popups.
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
+
 " Use CTRL-S for selections ranges.
 " Requires 'textDocument/selectionRange' support of LS, ex: coc-tsserver
 nmap <silent> <C-s> <Plug>(coc-range-select)
@@ -638,12 +593,50 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
 
-" Add (Neo)Vim's native statusline support.
-" NOTE: Please see `:h coc-status` for integrations with external plugins that
-" provide custom statusline: lightline.vim, vim-airline.
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+function! CountCocErrors()
+  let info = get(b:, 'coc_diagnostic_info', {})
+  let count = get(info, 'error', 0)
 
-" Mappings for CoCList
+  return count == 0 ? '' : count
+endfunction
+
+function! CountCocWarning()
+  let info = get(b:, 'coc_diagnostic_info', {})
+  let count = get(info, 'warning', 0)
+
+  return count == 0 ? '' : count
+endfunction
+
+" Add (Neo)Vim's native statusline support.
+" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
+
+let g:lightline = {
+  \ 'active': {
+  \   'left': [ [ 'mode', 'paste' ], [ 'readonly', 'filename', 'modified', 'devicons_filetype' ] ],
+  \   'right': [ [ 'lineinfo' ],  
+  \              [ 'percent' ], 
+  \              [ 'binary', 'filetype', 'coc_status' ] ]
+  \ },
+  \ 'inactive': {
+  \   'left': [ ['filename', 'modified', 'devicons_filetype' ] ],
+  \   'right': [ [ 'lineinfo' ] ]
+  \ },
+  \ 'component_function': {
+  \   'devicons_filetype': 'lightline#devicons',
+  \   'coc_status': 'coc#status'
+  \ },
+  \ 'component_expand': {
+  \   'linter_warnings': 'CountCocWarning',
+  \   'linter_errors': 'CountCocErrors',
+  \ },
+  \ 'component_type': {
+  \   'linter_warnings': 'warning',
+  \   'linter_errors': 'error'
+  \ },
+  \ }
+
+" Mappings for CocList
 " Show all diagnostics.
 nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
 " Manage extensions.
@@ -660,6 +653,13 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+" Use <C-j> for both expand and jump (make expand higher priority.)
+imap <C-j> <Plug>(coc-snippets-expand-jump)
+
+" Coc Snippets
+nmap <leader>sc :<C-u>CocCommand snippets.editSnippets<CR>
+
 
 " Over {{{2
 nnoremap <leader>fr :call VisualFindAndReplace()<CR>
